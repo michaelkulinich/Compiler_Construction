@@ -1,10 +1,27 @@
 # Assignment 1
 
+(instructions adapted for 2021)
+
 The assignment comes in 2 parts. Both parts are exercises in Haskell. This is important since we will use Haskell throughout this course and also next semester in Compiler Construction. (As a footnote, I want to add that Haskell is only a (very good) tool for us, one could use any other programming language for the same purpose in principle, even if it was infeasible in practice. In fact, if you want to compare Haskell to another programming language you already know, this would be a great idea for your blog to implement this assignment also in, say, one of Java, Python, C++, etc and then to compare the two implementations.)
 
 **Proper use of git will be taken into account for grading.**
 
-In your repo, make a folder called Assignment1. You can keep your version of the file `fractions.hs` there, as well as your version of the folder `Calculator`. Build up your version of `fractions.hs` step by step as the template will not compile. Do not change my names of the functions (they are part of the specification).
+- make a private repo for this Assignment and invite all group members and myself as a collaborators
+- add a `README.md` containing names and emails of all students in the group
+- make a subfolder `Calculator`
+- do not commit machine generated files (only keep `numbers.cf`, `Calculator.hs`, `Interpreter.hs` in `Calculator`)
+- do not change my file names
+- build up your version of `fractions.hs` step by step as the template will not compile. Do not change my names of the functions (they are part of the specification). Document at least on test case per function you implement.
+- commit each time, with **meaningful messages**, after you implemented and **tested** 
+  - a function in `fractions.hs`,
+  - a case of `eval` in `numbers3.hs`, 
+  - a rule of `numbers.cf`; 
+- if you want/need to keep copies of different versions of the same file use branches
+- the master branch should only contain the files relevant for grading: all the files that contain code you wrote plus the auxiliary files such as `Calculator.hs` that I need to compile your work;
+- expect no points for code that does not compile or does not run;
+
+**Submission is by sending me an email with a link to the repository.**
+
 
 ## Part 1: Recursion (5 points)
 
@@ -36,7 +53,7 @@ To program with fractions you need to know that if `pair` is a pair in Haskell, 
 
 The programming techniques follow closely the lectures and the homework. Start from the the [template `fractions.hs`](src/templates/fractions.hs). Here are some remarks:
 
-1. First you develop a "library" of functions to compute with `NN`s and `PN`s. In this part you will mostly use recursion.
+1. First you develop a library of functions to compute with `NN`s and `PN`s. In this part you will mostly use recursion.
 2. Then you implement arithmetic of fractions. For this you need to remember the rules of high-school algebra and implement them using the library functions of item 1. You will not have to directly use `O,S,I,T` in this part.
 3. Writing and reading larger successor numbers is tedious. Therefore it is convenient to have functions that convert numbers of type `NN`, `PN`, `Frac` to Haskell numbers and back. Use these functions only for testing, not to implement the arithmetic on `NN`, `PN`, `Frac`.
 
@@ -44,7 +61,7 @@ In the following I collect some hints that grew out of discussions within the cl
 
 - *Hint:* Spend some time on thinking about the logic behind each function. Once you have the idea, the solution will be short. Most of the functions are two-liners.
 
-- *Hint:* Mathematically each line below represents the same number.
+- *Hint:* Mathematically, each line below represents the same number.
 
     | `NN` | `PN` | `Int`
     |:---:|:---:|:---:|
@@ -56,7 +73,7 @@ In the following I collect some hints that grew out of discussions within the cl
 
     But in Haskell **these data types are disjoint**. For example, if you input an `I` or a `1` to a function that expects data of type `NN`, you will get an error message.
 
-- *Hint:* Separate clearly in your mind syntax from semantics (=meaning=interpretation): Syntactically, `O` and `I` are just symbols. The meaning of these symbols only arises from how we interpret the operations on these data. For example, if we write a function
+- *Hint:* Separate clearly in your mind syntax from semantics (=meaning=interpretation): Syntactically, `O` and `I` are just symbols. The meaning of these symbols only arises from the operations on these data. For example, if we write a function
 
         add O n = n
 
@@ -64,7 +81,9 @@ In the following I collect some hints that grew out of discussions within the cl
 
         addP I p = p 
 
-    then this would *not* be consistent with `I` meaning $1$, because $1+p=p$ is not a valid  equation.
+    then this would *not* be consistent with `I` meaning $1$, because $1+p=p$ is not a valid  equation of arithmetic.
+
+- *Hint:* The data type `PN` was introduced to make sure that a fraction never has a denominator of $0$. But there are other places where we need to allow run-time errors. You can just leave these errors to the runtime system, in which case your code does not need to account for these error at all. Generally preferable, though, is to proceed as in item 1 of [8 ways to report errors in Haskell](http://www.randomhacks.net/2007/03/10/haskell-8-ways-to-report-errors/).
 
 ## Part 2: A Calculator (4 points)
 
@@ -82,6 +101,8 @@ Download the [template `numbers3.hs`](src/Haskell/numbers3.hs). It contains the 
     eval (Num n) = n
     eval (Plus n m) = (eval n) + (eval m)
     eval (Times n m) = (eval n) * (eval m)
+
+
 
 **Finding operations in Haskell:**
  
@@ -101,11 +122,13 @@ Download the [template `numbers3.hs`](src/Haskell/numbers3.hs). It contains the 
         Then, if you want to see how functions such as `(^)` are implemented you can look them up in [Hoogle](https://hoogle.haskell.org/?hoogle=%5E&scope=set%3Astackage) and follow the links that will lead you to the source code. 
     - Another is to study more closely the documentation of [GHC.Real](https://www.haskell.org/haddock/libraries/GHC.Real.html) and [GHC.Num](https://hackage.haskell.org/package/base-4.14.0.0/docs/GHC-Num.html) and [Integral](https://hackage.haskell.org/package/base-4.14.0.0/docs/Prelude.html#t:Integral).
 
-**Task 1**: Extend the definition of `Exp` and `eval` by 5 other operations on the integers. Use the native Haskell operations on `Integer`.
+**Task 1**: Extend the definition of `Exp` and `eval` by 6 other operations on the integers including a binary `-`, a unary `-`, and `/` and `^` for integer division and exponentiation. Use the native Haskell operations on `Integer`.
+
+**Remark**: It is interesting to think about adding Booleans, comparison operators and if-then-else.
 
 ### An interpreter for concrete syntax (2 points)
 
-Checkout [the lecture notes](https://hackmd.io/@alexhkurz/HJVtVl068#Generating-a-Parser-from-a-Context-Free-Grammar) for the relevant workflow.
+Check out [the lecture notes](https://hackmd.io/@alexhkurz/HJVtVl068#Generating-a-Parser-from-a-Context-Free-Grammar) for the relevant workflow.
 
 Have a look at the [directory `Calculator3`](src/Calculator3). The file `Interpreter.hs` contains the function `eval`. The data type `Exp` will be generated automatically by `bnfc`  (see the lecture) from the grammar in `numbers.cf`:
 

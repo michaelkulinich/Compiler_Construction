@@ -14,14 +14,10 @@ import Data.Map ( Map )
 import qualified Data.Map as M
 
 -- execCBN is a function from type Program to type Exp, calling evalCBN
+-- CBN is short for Call By Name, see the lectures
 -- the types Program and Exp are defined in AbsLambdaNat.hs
 execCBN :: Program -> Exp  
--- "::" separates the name of a function from its type
--- "->" indicates that the type of execCBN is the type of a function 
 execCBN (Prog e) = evalCBN e
--- in a C like language you would have sth like
---     Exp execCBN(Program p){if p == Prog e then return evalCBN(e)}
-
 -- evalCBN is the actual interpreter ("eval" for evaluate, "CBN" for call by name)
 evalCBN :: Exp -> Exp  
 -- in lambda calculus everything is an expression, whether input, program or output
@@ -45,6 +41,8 @@ fresh_aux (EAbs (Id i) e) = i ++ fresh_aux e
 
 fresh = Id . fresh_aux -- for Id see AbsLamdaNat.hs
 
+-- subst implements the beta rule
+-- (\x.e)e' reduces to subst x e' e
 subst :: Id -> Exp -> Exp -> Exp
 subst id s (EVar id1) | id == id1 = s
                       | otherwise = EVar id1
@@ -52,8 +50,7 @@ subst id s (EApp e1 e2) = EApp (subst id s e1) (subst id s e2)
 subst id s (EAbs id1 e1) = 
     -- to avoid variable capture, we first substitute id1 with a fresh name inside the body
     -- of the λ-abstraction, obtaining e2. 
-    -- Only then do we proceed to apply substitution of the original s for id in the 
-    -- body e2.
+    -- Only then do we proceed to apply substitution of the original s for id in the body e2.
     let f = fresh (EAbs id1 e1)
         e2 = subst id1 (EVar f) e1 in 
         EAbs f (subst id s e2)

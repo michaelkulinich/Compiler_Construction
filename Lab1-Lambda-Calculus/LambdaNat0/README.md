@@ -2,15 +2,11 @@
 
 To parse and run a program in the language LambdaNat:
 
-- if you have not done so already, 
+- (I assume you have Haskell and bnfc)
 
-  - install the Haskell platform
+- fork the [programming-languages-2020](https://github.com/alexhkurz/programming-languages-2020/) repo
   
-  - clone this repository 
-
-        git clone https://github.com/alexhkurz/programming-languages-2019.git
-
-- cd into this directory
+- cd into this directory, `Lab1-Lambda-Calculus/LambdaNat0`
 
 - generate a parser as described [here](https://github.com/alexhkurz/programming-languages-2020/blob/master/Lab1-Lambda-Calculus/README.md)
 

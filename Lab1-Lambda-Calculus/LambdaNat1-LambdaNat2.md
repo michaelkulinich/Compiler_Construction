@@ -42,7 +42,7 @@ as output.
 
 We go through the Work Cycle to add if-then-else. 
 
-Start at Work Cycle 5b. `LambdaNatOld` is `LambdaNat2`. You can start from [`../Lab1-solutions/LambdaNat2](https://github.com/alexhkurz/programming-languages-2019/tree/master/Lab1-solutions/LambdaNat2).
+Start at Work Cycle 5b. `LambdaNatOld` is `LambdaNat2`. You can start from [`../Lab1-solutions/LambdaNat2](https://github.com/alexhkurz/programming-languages-2020/tree/master/Lab1-solutions/LambdaNat2).
 
 As abstract syntax we may choose (fill in the dots)
 
@@ -195,7 +195,7 @@ Putting things together, we can now also define more complicated functions such 
 
     fib S S S S 0 
 
-These and similar definitions can be found in [test.lc](https://github.com/alexhkurz/programming-languages-2019/blob/master/Lab1-Lambda-Calculus/LambdaNat4/test/test.lc) and [fib.lc](https://github.com/alexhkurz/programming-languages-2019/blob/master/Lab1-Lambda-Calculus/LambdaNat4/test/fib.lc).
+These and similar definitions can be found in [test.lc](https://github.com/alexhkurz/programming-languages-2020/blob/master/Lab1-Lambda-Calculus/LambdaNat4/test/test.lc) and [fib.lc](https://github.com/alexhkurz/programming-languages-2020/blob/master/Lab1-Lambda-Calculus/LambdaNat4/test/fib.lc).
 
 **Exercise:** Why is `fib` correct? Why does it terminate?
 

@@ -1,0 +1,33 @@
+(\ x . \ y . if x = y then S 0 else 0) a b
+
+/*
+Instead of changing this file you can also copy-paste into the terminal:
+/*
+
+/*
+-- If these tests do not work change the interpreter
+-- Test whether if-then-else is interpreted:
+echo "if x = x  then a else b" | stack exec LambdaNat-exe
+echo "if x = y  then a else b" | stack exec LambdaNat-exe
+-- Test whether if-then-else is interpreted recursively:
+echo "if (x y) = (x y)  then a else b" | stack exec LambdaNat-exe
+echo "if (\ x.x) = (\ x.x)  then a else b" | stack exec LambdaNat-exe
+echo "if 0 = 0 then (\ x.x) a else (\ x.x) b" | stack exec LambdaNat-exe
+echo "if 0 = a then (\ x.x) a else (\ x.x) b" | stack exec LambdaNat-exe
+-- Test if-then-else inside other constructions
+echo "(\ x . \ y . if x = y then S 0 else 0) a b" | stack exec LambdaNat-exe
+*/
+
+/*
+-- Testing preference levels for the parser
+-- If these tests do not work change the precedence levels in the grammar
+echo "if x y = x y  then a else b" | stack exec LambdaNat-exe
+echo "if \ x.x = \ x.x  then a else b" | stack exec LambdaNat-exe
+*/
+
+/*
+-- What answers do you expect on the following?
+(\ x . \ y . if x = y then a else b) (\ z . z) (\ z . z)
+(\ x . if x = x then a else b) (\ z . z)
+-- Why do they give different results?
+*/

@@ -12,12 +12,9 @@ The untyped lambda calculus is a very small programming language an we want to e
 
 Requirements: git, Haskell, bnfc
 
-To set up your computer, clone [this directory](https://github.com/alexhkurz/programming-languages-2020/). I do this from the command line by running in my home directory
-
-    git clone https://github.com/alexhkurz/programming-languages-2019.git
+To set up your computer, fork [this directory](https://github.com/alexhkurz/programming-languages-2020/). 
     
-You now have a folder `programming-languages-2019/Lab1-Lambda-Calculus/LambdaNat0/
-`. This is the base folder to follow the instructions in this section.
+You now have a repo `programming-languages-2020/`. This is the base folder to follow the instructions in this section.
 
 ### How to Generate a Parser
 
@@ -25,8 +22,8 @@ You now have a folder `programming-languages-2019/Lab1-Lambda-Calculus/LambdaNat
 
 - To **create a parser** run
 
-    bnfc -m -haskell LambdaNat0.cf
-    make
+        bnfc -m -haskell LambdaNat0.cf
+        make
 
 <!--
 If you cannot download or build [bnfc as described here](https://github.com/alexhkurz/programming-languages-2020/blob/master/BNFC-installation.md), you should still be able to run `make` as I uploaded to the folder `grammar` all files produced by `bnfc` (you may have to delete the executable `TestLambdaNat` in order to force make to do something).
@@ -34,7 +31,7 @@ If you cannot download or build [bnfc as described here](https://github.com/alex
 
 - To **parse a program** run, for example,
 
-    echo "\x.x y z" | ./TestLambdaNat
+        echo "\x.x y z" | ./TestLambdaNat
     
 *Exercise:* Write your own lamda calculus programs and parse them.
     
@@ -101,14 +98,16 @@ These functions are disappointingly simple and would not make one think that all
 
 For now, instead of encoding numbers, conditionals, and recursion in the pure lambda calculus, we will go into a different direction. We will add features to the basic language until we have enough to compute some reasonably interesting examples.
 
+## Homework
+
+Run through all the steps above. Make sure that you have a working parser and interpreter for Thursday as we are going to build on this during the lecture.
+
 
 ## The Work Cycle: Build a New Language
 
-The Work Cycle that was used to produce all the different programming languages in this directory was as follows. 
+The Work Cycle that is used to add features to, say, `LambdaNat0` is the following. **I highlighted in bold** the two steps that require actual work, the others steps are just for organisation and bookkeeping. 
 
-(If you find this boring, feel free to jump to the next section and come back here for reference as needed.)
-
-Here we assume that we have `LambdaNatOLD` and want to build a new language called `LambdaNatNEW`. (First time you come here "OLD" is "0" and "NEW" is "1".)
+Here we assume that we have `LambdaNatOLD` and want to build a new language called `LambdaNatNEW`. (First time you come here "OLD" is "0" and "NEW" is "1". "OLD" and "NEW" are place-holders for version numbers.)
 
 1) Copy the directory `LambdaNatOLD` and all its content to a new folder called `LambdaNatNEW`.
 
@@ -118,7 +117,7 @@ Here we assume that we have `LambdaNatOLD` and want to build a new language call
 
    - (This step is only needed if you want to make your own grammar. In the exercises for this lab, the new grammars are already given.)
 
-3) Change `LambdaNatNEW.cf` according to what you want to achieve. 
+3) **Change the grammar `LambdaNatNEW.cf` and add new features to the syntax of your programming language.**
 
 4) To build the parser:
 
@@ -130,10 +129,10 @@ Here we assume that we have `LambdaNatOLD` and want to build a new language call
    If not all tests run according to what you expect go back to 3).
 
 6) Now we need to copy the old interpreter and the new grammar into the folder of the new interpreter. `cd` into `LambdaNatNEW`.
-  a) Run `cp grammar/*.hs src`. (Do a `mkdir src` before if necessary.) This copies the Haskell-files produced by bnfc into the `src` folder that will contain the new interpreter. 
+  a) Copy the Haskell-files produced by bnfc to the `src` folder that will contain the new interpreter. (For example, run `cp grammar/*.hs src` and do a `mkdir src` before if necessary.)
   b) Copy the old interpreter  in `../LambdaNatOLD/src/Interpreter.hs` to `src/Interpreter.hs`. 
 
-7) Study how the interpreter `Interpreter.hs` uses the constructors of `AbsLambdaNat.hs` in order to evaluate the abstract syntax trees. Modify the old interpreter so that it can evaluate the new constructors of the new `AbsLambdaNat.hs` (this can take a while and is the item that may require the largest amount of work).
+7) Study how the interpreter `Interpreter.hs` uses the constructors of `AbsLambdaNat.hs` in order to evaluate the abstract syntax trees. **Modify the interpreter so that it can evaluate the newly added syntax of your programming language**, as defined in the new grammar (and, therefore, the new `AbsLambdaNat.hs`). This step (together with steps 8 and 9) may require the largest amount of work.
 
 8) Run `stack build`. Debug the interpreter if it does not compile. 
 
@@ -141,6 +140,5 @@ Here we assume that we have `LambdaNatOLD` and want to build a new language call
 `stack exec LambdaNat-exe test/test.lc`
 If not all tests run according to what you expect go back to 6).
 
-10) Release your new programming language.
+10) Let me know about your new programming language. 
 
-**Remark:** In the exercises below, **Steps 1-4a** have already been taken care of for you. But I would encourage you to also play around with your own grammars.
