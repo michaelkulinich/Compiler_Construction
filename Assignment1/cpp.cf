@@ -28,8 +28,7 @@ EDouble. Exp15  ::= Double ;
 EString. Exp15  ::= String ;
 EId.     Exp15  ::= Id ; 
 
-EQConst.  Exp15  ::= Exp15 "::" Exp15 ;
-
+EQConst. Exp15  ::=  [QConstId];
 EApp.    Exp15  ::= Id "(" [Exp] ")" ;
 
 EPIncr.  Exp14  ::= Exp15 "++" ;
@@ -66,6 +65,10 @@ rules Type   ::= "bool" | "int" | "double" | "void" | "string" ;
 token Id (letter (letter | digit | '_')*) ;
 
 separator nonempty Id "," ;
+
+QConst. QConstId ::= Id ;
+separator nonempty QConstId "::" ;
+
 
 comment "#" ;
 comment "//" ;
