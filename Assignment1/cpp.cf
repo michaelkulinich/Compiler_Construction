@@ -28,7 +28,11 @@ EDouble. Exp15  ::= Double ;
 EString. Exp15  ::= String ;
 EId.     Exp15  ::= Id ; 
 
-EQConst. Exp15  ::=  [QConstId];
+EQConst. Exp15  ::=  Exp15 "::" QConstId ;
+
+QConstType. QConstId ::= Type Id ;
+QConst. QConstId ::= Id ;
+separator nonempty QConstId "::" ;
 EApp.    Exp15  ::= Id "(" [Exp] ")" ;
 
 EPIncr.  Exp14  ::= Exp15 "++" ;
@@ -43,6 +47,7 @@ EPlus.   Exp11  ::= Exp11 "+"  Exp12 ;
 EMinus.  Exp11  ::= Exp11 "-"  Exp12 ;
 
 ELShift.  Exp10  ::= Exp10 "<<" Exp11 ;
+ELShift.  Exp10  ::= Exp10 ">>" Exp11 ;
 
 ELt.     Exp9   ::= Exp9  "<"  Exp10 ;
 EGt.     Exp9   ::= Exp9  ">"  Exp10 ;
@@ -66,8 +71,6 @@ token Id (letter (letter | digit | '_')*) ;
 
 separator nonempty Id "," ;
 
-QConst. QConstId ::= Id ;
-separator nonempty QConstId "::" ;
 
 
 comment "#" ;
