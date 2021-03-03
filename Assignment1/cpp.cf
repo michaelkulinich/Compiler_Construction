@@ -10,7 +10,7 @@ separator Arg "," ;
 
 SExp.        Stm ::= Exp ";" ;
 
-SDecl.       STM ::= Type Id ";" ;
+
 SDecls.      Stm ::= Type [Id] ";" ;
 SInit.       Stm ::= Type Id "=" Exp ";" ;
 SReturn.     Stm ::= "return" Exp ";" ;
@@ -27,10 +27,14 @@ EInt.    Exp15  ::= Integer ;
 EDouble. Exp15  ::= Double ;
 EString. Exp15  ::= String ;
 EId.     Exp15  ::= Id ; 
+EQConst. Exp15  ::=  Exp15 "::" QConstId ;
+QConstType. QConstId ::= Type Id ;
+QConst. QConstId ::= Id ;
 
-EQConst. Exp15  ::=  [QConstId];
+
+
 EApp.    Exp15  ::= Id "(" [Exp] ")" ;
-
+EStr.    Exp15 ::= "\"" Id "\"";
 EPIncr.  Exp14  ::= Exp15 "++" ;
 EPDecr.  Exp14  ::= Exp15 "--" ;
 
@@ -43,6 +47,7 @@ EPlus.   Exp11  ::= Exp11 "+"  Exp12 ;
 EMinus.  Exp11  ::= Exp11 "-"  Exp12 ;
 
 ELShift.  Exp10  ::= Exp10 "<<" Exp11 ;
+ERShift.  Exp10  ::= Exp10 ">>" Exp11 ;
 
 ELt.     Exp9   ::= Exp9  "<"  Exp10 ;
 EGt.     Exp9   ::= Exp9  ">"  Exp10 ;
@@ -64,10 +69,9 @@ rules Type   ::= "bool" | "int" | "double" | "void" | "string" ;
 
 token Id (letter (letter | digit | '_')*) ;
 
+
 separator nonempty Id "," ;
 
-QConst. QConstId ::= Id ;
-separator nonempty QConstId "::" ;
 
 
 comment "#" ;
