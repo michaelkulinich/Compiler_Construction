@@ -8,13 +8,16 @@ DFun.    Def    ::= Type Id "(" [Arg] ")" "{" [Stm] "}" ;
 
 terminator Def "" ;
 
-ADecl.   Arg    ::= Type Id ;
-
+ADecl.      Arg    ::= Type Id ;
+ADeclAddr.  Arg    ::= Type "&" Id ;
+ADeclConst. Arg    ::= "const" Type Id ;
+ADeclCAddr. Arg    ::= "const" Type "&" Id ;       
 separator Arg "," ;
 
 SExp.        Stm ::= Exp ";" ;
 
 STypeDef.    Stm ::= "typedef" Stm ;
+SDeclsConst. Stm ::= "const" Type [Id] ";" ;
 SDecls.      Stm ::= Type [Id] ";" ;
 SInit.       Stm ::= Type Id "=" Exp ";" ;
 SReturn.     Stm ::= "return" Exp ";" ;
@@ -60,7 +63,7 @@ EPlus.   Exp11  ::= Exp11 "+"  Exp12 ;
 EMinus.  Exp11  ::= Exp11 "-"  Exp12 ;
 
 ELShift.  Exp10  ::= Exp10 "<<" Exp11 ;
-ELShift.  Exp10  ::= Exp10 ">>" Exp11 ;
+ERShift.  Exp10  ::= Exp10 ">>" Exp11 ;
 
 ELt.     Exp9   ::= Exp9  "<"  Exp10 ;
 EGt.     Exp9   ::= Exp9  ">"  Exp10 ;
@@ -72,7 +75,7 @@ EAnd.    Exp4   ::= Exp4  "&&" Exp5 ;
 EOr.     Exp3   ::= Exp3  "||" Exp4 ;
 EAss.    Exp2   ::= Exp3 "=" Exp2 ;
 ECond.   Exp2   ::= Exp2 "?" Exp3 ":" Exp3 ;
-
+EExcep.  Exp1   ::= "throw" Exp2 ;
 internal ETyped. Exp15 ::= "(" Exp ":" Type ")" ;
 
 coercions Exp 15 ;
