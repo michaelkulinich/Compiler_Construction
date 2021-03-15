@@ -1,6 +1,8 @@
 -- A program is now a list of 'using' declarations for 
 -- namespace definitions followed by function definitions
-PDefs.   Program ::= [NameSpace] [Def];
+-- this needs to be changed back to original
+-- figure out how to keep it as a list of Def
+PDefs.   Program ::= [NameSpace] [Def] ; 
 
 -- Rule for Namespace definitions. starts with 'using' 
 -- and is followed by a qualified constant
@@ -56,7 +58,6 @@ EQConst.            Names ::= [Name] ;
 EQConstTemp.        Name  ::= Name "<" [Type] ">" ;
 EQConstNameId.      Name  ::= Id ;
 -- EQTest.             Name ::= "string" ;
-
 
 -- Qualified constants are a nonempty list seperated by "::"
 separator nonempty Name "::" ;
