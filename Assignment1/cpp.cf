@@ -1,14 +1,19 @@
+-- A program is now a list of 'using' declarations for 
+-- namespace definitions followed by function definitions
 PDefs.   Program ::= [NameSpace] [Def];
 
+-- Rule for Namespace definitions. starts with 'using' 
+-- and is followed by a qualified constant
 PNameSpace. NameSpace ::= "using" Names ";" ;
+PTypeDefs.  NameSpace ::= "typedef" Names Id ";" ;
 terminator NameSpace "" ;
-
 
 DFun.    Def    ::= Type Id "(" [Arg] ")" "{" [Stm] "}" ;
 
 terminator Def "" ;
 
 ADecl.      Arg    ::= Type Id ;
+-- Added three rules for possible variations of arguments
 ADeclAddr.  Arg    ::= Type "&" Id ;
 ADeclConst. Arg    ::= "const" Type Id ;
 ADeclCAddr. Arg    ::= "const" Type "&" Id ;       
@@ -16,7 +21,10 @@ separator Arg "," ;
 
 SExp.        Stm ::= Exp ";" ;
 
+-- Rule for type definitions
 STypeDef.    Stm ::= "typedef" Stm ;
+
+-- Rule for declarations with 'const'
 SDeclsConst. Stm ::= "const" Type [Id] ";" ;
 SDecls.      Stm ::= Type [Id] ";" ;
 SInit.       Stm ::= Type Id "=" Exp ";" ;
@@ -24,6 +32,8 @@ SReturn.     Stm ::= "return" Exp ";" ;
 SReturnVoid. Stm ::= "return" ";" ;
 SWhile.      Stm ::= "while" "(" Exp ")" Stm ;
 SBlock.      Stm ::= "{" [Stm] "}" ;
+
+-- A singlular if statement
 SIf.         Stm ::= "if" "(" Exp ")" Stm ;
 SIfElse.     Stm ::= "if" "(" Exp ")" Stm "else" Stm ;
 
@@ -33,22 +43,30 @@ ETrue.   Exp15  ::= "true" ;
 EFalse.  Exp15  ::= "false" ;
 EInt.    Exp15  ::= Integer ;
 EDouble. Exp15  ::= Double ;
+
+-- Made this into a list of Strings for when a sentence
+-- is split into two lines of code
 EString. Exp15  ::= [String] ;
 separator nonempty String "" ;
 
+-- rules for qualified constants and indexing
 EIndexing. Exp15 ::= Exp15 "[" Exp "]" ;
 EQConsts.           Exp15 ::=  Names ;
 EQConst.            Names ::= [Name] ;
 EQConstTemp.        Name  ::= Name "<" [Type] ">" ;
 EQConstNameId.      Name  ::= Id ;
+-- EQTest.             Name ::= "string" ;
 
 
+-- Qualified constants are a nonempty list seperated by "::"
 separator nonempty Name "::" ;
 separator nonempty Type "," ;
 
 
 EApp.    Exp15  ::= Id "(" [Exp] ")" ;
-EStr.    Exp15 ::= "\"" Id "\"" ;
+-- EStr.    Exp15 ::= "\"" Id "\"" ;
+
+-- used for function calls. eg: myVector.size()
 EProj.   Exp14 ::= Exp14 "." Exp15 ;
 EPIncr.  Exp14  ::= Exp15 "++" ;
 EPDecr.  Exp14  ::= Exp15 "--" ;
@@ -62,6 +80,7 @@ EDiv.    Exp12  ::= Exp12 "/"  Exp13 ;
 EPlus.   Exp11  ::= Exp11 "+"  Exp12 ;
 EMinus.  Exp11  ::= Exp11 "-"  Exp12 ;
 
+-- rules for left and right shift
 ELShift.  Exp10  ::= Exp10 "<<" Exp11 ;
 ERShift.  Exp10  ::= Exp10 ">>" Exp11 ;
 
@@ -74,7 +93,11 @@ ENEq.    Exp8   ::= Exp8  "!=" Exp9 ;
 EAnd.    Exp4   ::= Exp4  "&&" Exp5 ;
 EOr.     Exp3   ::= Exp3  "||" Exp4 ;
 EAss.    Exp2   ::= Exp3 "=" Exp2 ;
+
+-- rule for conditional
 ECond.   Exp2   ::= Exp2 "?" Exp3 ":" Exp3 ;
+
+-- rule for exceptions
 EExcep.  Exp1   ::= "throw" Exp2 ;
 internal ETyped. Exp15 ::= "(" Exp ":" Type ")" ;
 
@@ -82,6 +105,8 @@ coercions Exp 15 ;
 
 separator Exp "," ;
 
+-- added Names to type becuase types are either qualified constants
+-- or built in types
 rules Type   ::= "bool" | "int" | "double" | "void" | Names ;
 
 token Id (letter (letter | digit | '_')*) ;
