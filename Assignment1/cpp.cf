@@ -1,39 +1,40 @@
--- A program is now a list of 'using' declarations for
--- namespace definitions followed by function definitions
--- this needs to be changed back to original
--- figure out how to keep it as a list of Def
-PDefs.   Program ::= [NameSpace] [Def] ;
+PDefs.   Program ::= [Def] ;
 
 -- Rule for Namespace definitions. starts with 'using'
 -- and is followed by a qualified constant
-PNameSpace. NameSpace ::= "using" Names ";" ;
-PTypeDefs.  NameSpace ::= "typedef" Names Id ";" ;
-terminator NameSpace "" ;
+-- Also declarations and initilizations
+DUsing. Def ::= "using" Names ";" ;
+DTypeDefs.  Def ::= "typedef" Type Id ";" ;
+DDecls.     Def ::= Type [Id] ";" ;
+DInit.      Def ::= Type Id "=" Exp ";" ;
 
-DFun.    Def    ::= Type Id "(" [Arg] ")" "{" [Stm] "}" ;
-DFunc.   Def    ::= Type ID "(" [Arg] ")" ";" ;
 
+DFun.       Def    ::= Type Id "(" [Arg] ")" "{" [Stm] "}" ;
+DFunDec.    Def    ::= Type Id "(" [Arg] ")" ";" ;  --Function declarations
+DInlineFun.  Def    ::= "inline" Def ;
+DStruct.    Def    ::= "struct" Id "{" [SDef] "}" ";" ; -- Struct rule
 terminator Def "" ;
 
+-- declarations inside of structs
+StructDecls. SDef ::= Type [Id] ";" ;
+terminator SDef "" ;
+
 ADecl.      Arg    ::= Type Id ;
--- Added three rules for possible variations of arguments
-ADeclAddr.  Arg    ::= Type "&" Id ;
-ADeclConst. Arg    ::= "const" Type Id ;
-ADeclCAddr. Arg    ::= "const" Type "&" Id ;
 separator Arg "," ;
+
+-- Rule for function declarations, arguments arent given Id
+ADecltwo.      Arg    ::= Type;
 
 SExp.        Stm ::= Exp ";" ;
 
 -- Rule for type definitions
-STypeDef.    Stm ::= "typedef" Stm ;
-
--- Rule for declarations with 'const'
-SDeclsConst. Stm ::= "const" Type [Id] ";" ;
+STypeDef.    Stm ::= "typedef" Type [Id] ";" ;
 SDecls.      Stm ::= Type [Id] ";" ;
 SInit.       Stm ::= Type Id "=" Exp ";" ;
 SReturn.     Stm ::= "return" Exp ";" ;
 SReturnVoid. Stm ::= "return" ";" ;
-SFor.        Stm ::= "for" "(" Arg ";" Exp ";" Exp ")" Stm ;
+SForLoop.    Stm ::= "for" "(" Stm Exp ";" Exp ")" Stm ;
+SDoWhile.    Stm ::= "do" Stm "while" "(" Exp ")" ";" ;
 SWhile.      Stm ::= "while" "(" Exp ")" Stm ;
 SBlock.      Stm ::= "{" [Stm] "}" ;
 
@@ -41,12 +42,15 @@ SBlock.      Stm ::= "{" [Stm] "}" ;
 SIf.         Stm ::= "if" "(" Exp ")" Stm ;
 SIfElse.     Stm ::= "if" "(" Exp ")" Stm "else" Stm ;
 
+-- Struct decl in function
+SStruct.    Stm    ::= "struct" Id "{" [Stm] "}" ";" ;
 terminator Stm "" ;
 
 ETrue.   Exp15  ::= "true" ;
 EFalse.  Exp15  ::= "false" ;
 EInt.    Exp15  ::= Integer ;
 EDouble. Exp15  ::= Double ;
+EChar.   Exp15  ::= Char ; --rule for char
 
 -- Made this into a list of Strings for when a sentence
 -- is split into two lines of code
@@ -59,18 +63,20 @@ EQConsts.           Exp15 ::=  Names ;
 EQConst.            Names ::= [Name] ;
 EQConstTemp.        Name  ::= Name "<" [Type] ">" ;
 EQConstNameId.      Name  ::= Id ;
--- EQTest.             Name ::= "string" ;
 
 -- Qualified constants are a nonempty list seperated by "::"
 separator nonempty Name "::" ;
 separator nonempty Type "," ;
 
+-- This might be an issue, it should be Id instead of Name
+EApp.    Exp15  ::= Name "(" [Exp] ")" ;
 
-EApp.    Exp15  ::= Id "(" [Exp] ")" ;
--- EStr.    Exp15 ::= "\"" Id "\"" ;
 
 -- used for function calls. eg: myVector.size()
 EProj.   Exp14 ::= Exp14 "." Exp15 ;
+EArrow.  Exp14 ::= Exp14 "->" Exp15 ;
+
+EDeRef.  Exp14  ::= "*" Exp15 ;
 EPIncr.  Exp14  ::= Exp15 "++" ;
 EPDecr.  Exp14  ::= Exp15 "--" ;
 
@@ -87,6 +93,7 @@ EMinus.  Exp11  ::= Exp11 "-"  Exp12 ;
 ELShift.  Exp10  ::= Exp10 "<<" Exp11 ;
 ERShift.  Exp10  ::= Exp10 ">>" Exp11 ;
 
+ENot.    Exp10 ::= "!" Exp10 ;
 ELt.     Exp9   ::= Exp9  "<"  Exp10 ;
 EGt.     Exp9   ::= Exp9  ">"  Exp10 ;
 ELtEq.   Exp9   ::= Exp9  "<=" Exp10 ;
@@ -96,6 +103,9 @@ ENEq.    Exp8   ::= Exp8  "!=" Exp9 ;
 EAnd.    Exp4   ::= Exp4  "&&" Exp5 ;
 EOr.     Exp3   ::= Exp3  "||" Exp4 ;
 EAss.    Exp2   ::= Exp3 "=" Exp2 ;
+EAssP.   Exp2   ::= Exp3 "+=" Exp2 ; -- plus equals
+EAssM.   Exp2   ::= Exp3 "-=" Exp2 ; -- minus equals
+
 
 -- rule for conditional
 ECond.   Exp2   ::= Exp2 "?" Exp3 ":" Exp3 ;
@@ -110,7 +120,7 @@ separator Exp "," ;
 
 -- added Names to type becuase types are either qualified constants
 -- or built in types
-rules Type   ::= "bool" | "int" | "double" | "void" | Names ;
+rules Type   ::= "bool" | "int" | "double" | "void" | "char" | Names | Type "&" | "const" Type ;
 
 token Id (letter (letter | digit | '_')*) ;
 
