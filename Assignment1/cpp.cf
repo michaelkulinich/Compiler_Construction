@@ -1,62 +1,36 @@
--- A program is now a list of 'using' declarations for 
--- namespace definitions followed by function definitions
--- this needs to be changed back to original
--- figure out how to keep it as a list of Def
 PDefs.   Program ::= [Def] ; 
 
 -- Rule for Namespace definitions. starts with 'using' 
 -- and is followed by a qualified constant
+-- Also declarations and initilizations
 DUsing. Def ::= "using" Names ";" ;
 DTypeDefs.  Def ::= "typedef" Type Id ";" ;
-
 DDecls.     Def ::= Type [Id] ";" ;
 DInit.      Def ::= Type Id "=" Exp ";" ;
+
+
 DFun.       Def    ::= Type Id "(" [Arg] ")" "{" [Stm] "}" ;
-DFunDec.    Def    ::= Type Id "(" [Arg] ")" ";" ;
+DFunDec.    Def    ::= Type Id "(" [Arg] ")" ";" ;  --Function declarations
 DInlineFun.  Def    ::= "inline" Def ;
-DStruct.    Def    ::= "struct" Id "{" [SDef] "}" ";" ;
+DStruct.    Def    ::= "struct" Id "{" [SDef] "}" ";" ; -- Struct rule
 terminator Def "" ;
 
 -- declarations inside of structs
 StructDecls. SDef ::= Type [Id] ";" ;
 terminator SDef "" ;
 
-
--- For synthetic 8 when they have '=' in argument
-ADeclEq.    Arg  ::= Arg "=" Exp ;
-
 ADecl.      Arg    ::= Type Id ;
--- Added three rules for possible variations of arguments
---ADeclAddr.  Arg    ::= Type "&" Id ;
---ADeclConst. Arg    ::= "const" Type Id ;
---ADeclCAddr. Arg    ::= "const" Type "&" Id ;   
+separator Arg "," ;
 
 -- Rule for function declarations, arguments arent given Id
 ADecltwo.      Arg    ::= Type;
---ADeclAddrtwo.  Arg    ::= Type "&" ;
---ADeclConsttwo. Arg    ::= "const" Type ;
---ADeclCAddrtwo. Arg    ::= "const" Type "&" ;   
-separator Arg "," ;
 
 SExp.        Stm ::= Exp ";" ;
 
 -- Rule for type definitions
-STypeDef.    Stm ::= "typedef" Stm ;
-
--- Rule for declarations with 'const'
---SDeclsConst. Stm ::= "const" Type [Id] ";" ;
-
-
--- Need to combine this with other rules
--- SDCAnd.      Stm ::= "const" Type "&" [Id] ";" ;
+STypeDef.    Stm ::= "typedef" Type [Id] ";" ;
 SDecls.      Stm ::= Type [Id] ";" ;
 SInit.       Stm ::= Type Id "=" Exp ";" ;
-
--- need to combine this with other rules
--- SICAnd.      Stm ::= "const" Type "&" Id "=" Exp ";" ;
--- SIConst.     Stm ::= "const" Type Id "=" Exp ";" ;
-
-
 SReturn.     Stm ::= "return" Exp ";" ;
 SReturnVoid. Stm ::= "return" ";" ;
 SForLoop.    Stm ::= "for" "(" Stm Exp ";" Exp ")" Stm ;
@@ -66,8 +40,6 @@ SBlock.      Stm ::= "{" [Stm] "}" ;
 
 -- A singlular if statement
 SIf.         Stm ::= "if" "(" Exp ")" Stm ;
-
-
 SIfElse.     Stm ::= "if" "(" Exp ")" Stm "else" Stm ;
 
 -- Struct decl in function
@@ -78,7 +50,7 @@ ETrue.   Exp15  ::= "true" ;
 EFalse.  Exp15  ::= "false" ;
 EInt.    Exp15  ::= Integer ;
 EDouble. Exp15  ::= Double ;
-EChar.   Exp15  ::= Char ;
+EChar.   Exp15  ::= Char ; --rule for char
 
 -- Made this into a list of Strings for when a sentence
 -- is split into two lines of code
@@ -92,17 +64,13 @@ EQConst.            Names ::= [Name] ;
 EQConstTemp.        Name  ::= Name "<" [Type] ">" ;
 EQConstNameId.      Name  ::= Id ;
 
-
--- EQTest.             Name ::= "string" ;
-
 -- Qualified constants are a nonempty list seperated by "::"
 separator nonempty Name "::" ;
 separator nonempty Type "," ;
 
-
 -- This might be an issue, it should be Id instead of Name
 EApp.    Exp15  ::= Name "(" [Exp] ")" ;
--- EStr.    Exp15 ::= "\"" Id "\"" ;
+
 
 -- used for function calls. eg: myVector.size()
 EProj.   Exp14 ::= Exp14 "." Exp15 ;
