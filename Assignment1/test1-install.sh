@@ -6,9 +6,9 @@ echo -e "\033[35m----download the testsuite from the internet if not installed l
 
 # if [ ! -d ./lab1-testsuite-larger ]
 # then
-    wget http://www.grammaticalframework.org/ipl-book/assignments/assignment1/testscript/lab1-testsuite-larger.tar.gz
-    tar -zxf lab1-testsuite-larger.tar.gz
-    rm  lab1-testsuite-larger.tar.gz
+#    wget http://www.grammaticalframework.org/ipl-book/assignments/assignment1/testscript/lab1-testsuite-larger.tar.gz
+ #   tar -zxf lab1-testsuite-larger.tar.gz
+  #  rm  lab1-testsuite-larger.tar.gz
 # fi
 
 # compile the test progs-test-lab1.hs
