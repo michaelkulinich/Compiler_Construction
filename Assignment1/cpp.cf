@@ -1,16 +1,17 @@
--- A program is now a list of 'using' declarations for 
+-- A program is now a list of 'using' declarations for
 -- namespace definitions followed by function definitions
 -- this needs to be changed back to original
 -- figure out how to keep it as a list of Def
-PDefs.   Program ::= [NameSpace] [Def] ; 
+PDefs.   Program ::= [NameSpace] [Def] ;
 
--- Rule for Namespace definitions. starts with 'using' 
+-- Rule for Namespace definitions. starts with 'using'
 -- and is followed by a qualified constant
 PNameSpace. NameSpace ::= "using" Names ";" ;
 PTypeDefs.  NameSpace ::= "typedef" Names Id ";" ;
 terminator NameSpace "" ;
 
 DFun.    Def    ::= Type Id "(" [Arg] ")" "{" [Stm] "}" ;
+DFunc.   Def    ::= Type ID "(" [Arg] ")" ";" ;
 
 terminator Def "" ;
 
@@ -18,7 +19,7 @@ ADecl.      Arg    ::= Type Id ;
 -- Added three rules for possible variations of arguments
 ADeclAddr.  Arg    ::= Type "&" Id ;
 ADeclConst. Arg    ::= "const" Type Id ;
-ADeclCAddr. Arg    ::= "const" Type "&" Id ;       
+ADeclCAddr. Arg    ::= "const" Type "&" Id ;
 separator Arg "," ;
 
 SExp.        Stm ::= Exp ";" ;
@@ -32,6 +33,7 @@ SDecls.      Stm ::= Type [Id] ";" ;
 SInit.       Stm ::= Type Id "=" Exp ";" ;
 SReturn.     Stm ::= "return" Exp ";" ;
 SReturnVoid. Stm ::= "return" ";" ;
+SFor.        Stm ::= "for" "(" Arg ";" Exp ";" Exp ")" Stm ;
 SWhile.      Stm ::= "while" "(" Exp ")" Stm ;
 SBlock.      Stm ::= "{" [Stm] "}" ;
 
