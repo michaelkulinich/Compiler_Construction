@@ -1,0 +1,16 @@
+/root/home/Typechecker/README.md:
+  hash: 40ff00517c09cc2ce85a96daede1ab7dd1e17c7b7848e1b9a948c2dbe876c9ca
+/root/home/Typechecker/.stack-work/dist/x86_64-linux-tinfo6/Cabal-2.4.0.1/build/CPPTypeChecker-test/autogen/cabal_macros.h:
+  hash: c4e739cd0be0b242766fc56ac6b6e15bd6103f9f8dcf2eded4afc3ea04efa996
+? /root/home/Typechecker/.stack-work/dist/x86_64-linux-tinfo6/Cabal-2.4.0.1/build/CPPTypeChecker-test/autogen/Paths_CPPTypeChecker.hs
+: hash: c4efd1c670b4aa56849a13d3a3587cb3499712af131b04c11ee3d4e4d839b6c3
+/root/.stack/programs/x86_64-linux/ghc-tinfo6-8.6.4/lib/ghc-8.6.4/include/ghcversion.h:
+  hash: 529291d4a255ef1c3ec99116d8dca391f2db7bad8b5eab6dcbf9a70354c6eedf
+/usr/include/stdc-predef.h:
+  hash: 64fdf694f7b3d51ec6c45c06dcb71ebbe9455742d3ea673012016668853d3bff
+/root/home/Typechecker/ChangeLog.md:
+  hash: 8813e52402bb3e213004a0a8162e4be2b4db6c6e9f671b755a7189dc61dd329f
+/root/home/Typechecker/test/Spec.hs:
+  hash: 4852b1c9e42c2a51acb26668559649705bae9e67fd82d9a7638fc6bac6aa1206
+/root/home/Typechecker/CPPTypeChecker.cabal:
+  hash: b7646935c94ad6dd29ea42f4be393a58cae57922a123b4a058cdf440cd154e4d

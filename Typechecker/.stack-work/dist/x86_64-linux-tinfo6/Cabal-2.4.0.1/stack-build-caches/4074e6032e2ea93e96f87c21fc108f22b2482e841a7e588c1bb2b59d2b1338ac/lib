@@ -1,0 +1,32 @@
+/root/.stack/programs/x86_64-linux/ghc-tinfo6-8.6.4/lib/ghc-8.6.4/include/ghcconfig.h:
+  hash: 03f4611ae97decc9e8c76c212bf7886d003b29d5c62b43fee6623a799f6e5fdf
+/root/home/Typechecker/src/LexCPP.hs:
+  hash: f9b0dd930ccb07a4942799d876d50bf2e203d357348577f3dce5353cea9c9769
+/root/.stack/programs/x86_64-linux/ghc-tinfo6-8.6.4/lib/ghc-8.6.4/include/ghcautoconf.h:
+  hash: 6d4f30152de0bca5ee053a85e607a3687b5de1024967a8c8c69fa076e83cf342
+/root/home/Typechecker/.stack-work/dist/x86_64-linux-tinfo6/Cabal-2.4.0.1/build/autogen/Paths_CPPTypeChecker.hs:
+  hash: 67145fe8d63c10d88c10cceca8ed7c7c046b35d219f7aec4c8a5b1585c6df77d
+/root/home/Typechecker/README.md:
+  hash: 40ff00517c09cc2ce85a96daede1ab7dd1e17c7b7848e1b9a948c2dbe876c9ca
+/root/.stack/programs/x86_64-linux/ghc-tinfo6-8.6.4/lib/ghc-8.6.4/include/ghcplatform.h:
+  hash: 6f30e9ad0022d26323aca04816a74e38a04af174747fe91efa77324c78b0d73d
+/root/home/Typechecker/src/TypeChecker.hs:
+  hash: 048ef972443f8b9ea7658a36c53eeb6c7374bc229744b8c5ef8c7463eb62427f
+/root/.stack/programs/x86_64-linux/ghc-tinfo6-8.6.4/lib/ghc-8.6.4/include/ghcversion.h:
+  hash: 529291d4a255ef1c3ec99116d8dca391f2db7bad8b5eab6dcbf9a70354c6eedf
+/usr/include/stdc-predef.h:
+  hash: 64fdf694f7b3d51ec6c45c06dcb71ebbe9455742d3ea673012016668853d3bff
+/root/home/Typechecker/src/PrintCPP.hs:
+  hash: 33aec0fccb85f5731d172b9d501c72f75861d6664098070dac5932b23eee73b3
+/root/home/Typechecker/ChangeLog.md:
+  hash: 8813e52402bb3e213004a0a8162e4be2b4db6c6e9f671b755a7189dc61dd329f
+/root/home/Typechecker/src/ErrM.hs:
+  hash: df231f32c0d979b0ec5f9fc7acdec9f601e50a2a39d9254e498ea9575f63b0a7
+/root/home/Typechecker/src/ParCPP.hs:
+  hash: f3d09f8f74dac42da954aceacd63eb1bef1cdb1bd7950b396181c3ebc783ffb5
+/root/home/Typechecker/src/AbsCPP.hs:
+  hash: c02f2f4b31d43815fc3fbc35ada33ba81a3e2ae69aae224078c5748bb2eda1d4
+/root/home/Typechecker/.stack-work/dist/x86_64-linux-tinfo6/Cabal-2.4.0.1/build/autogen/cabal_macros.h:
+  hash: b69b62fe7773fe708cc41da9a388f298b3fbecfa28fa455cf64034b675d81f99
+/root/home/Typechecker/CPPTypeChecker.cabal:
+  hash: b7646935c94ad6dd29ea42f4be393a58cae57922a123b4a058cdf440cd154e4d
