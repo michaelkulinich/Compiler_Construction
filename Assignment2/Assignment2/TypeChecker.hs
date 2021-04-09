@@ -166,21 +166,21 @@ In ty <- inferTypExp env e we have
 inferTypeExp :: Env -> Exp -> Err Type
 inferTypeExp env (EInt _) = return Type_int
 inferTypeExp env (EDouble _) = return Type_double
--- inferTypeExp env (EString _) =
-inferTypeExp env (EId i) = lookupVar i env
-    -- use lookupVar
+inferTypeExp env (EString _) = return Type_string
+inferTypeExp env (EId i) = do
+    ty <- lookupVar id env
+    return ty
 -- inferTypeExp env (EApp i exps) = do
     -- use lookupFun
     -- use forM_ to iterate checkExp over exps
--- inferTypeExp env (EPIncr e) =
-    -- use inferTypeOverloadedExp
--- inferTypeExp env (EPDecr e) =
--- inferTypeExp env (EIncr e) =
--- inferTypeExp env (EDecr e) =
--- inferTypeExp env (ETimes e1 e2) =
--- inferTypeExp env (EDiv e1 e2) =
-inferTypeExp env (EPlus e1 e2) = inferTypeOverloadedExp env (Alternative [Type_int]) e1 [e2]
--- inferTypeExp env (EMinus e1 e2) =
+inferTypeExp env (EPIncr e) = inferTypeOverLoadedExp env (Alternative[Type_int]) e [e]
+inferTypeExp env (EPDecr e) = inferTypeOverLoadedExp env (Alternative[Type_int]) e [e]
+inferTypeExp env (EIncr e) = inferTypeOverLoadedExp env (Alternative[Type_int]) e [e]
+inferTypeExp env (EDecr e) = inferTypeOverLoadedExp env (Alternative[Type_int]) e [e]
+inferTypeExp env (ETimes e1 e2) = inferTypeOverloadedExp env (Alternative [Type_int, Type_double]) e1 [e2]
+inferTypeExp env (EDiv e1 e2) = inferTypeOverloadedExp env (Alternative [Type_int, Type_double]) e1 [e2]
+inferTypeExp env (EPlus e1 e2) = inferTypeOverloadedExp env (Alternative [Type_int, Type_double]) e1 [e2]
+inferTypeExp env (EMinus e1 e2) = inferTypeOverloadedExp env (Alternative [Type_int, Type_double]) e1 [e2]
 -- inferTypeExp env (ELt e1 e2) = do
 -- inferTypeExp env (EGt e1 e2) =
 -- inferTypeExp env (ELtEq e1 e2) =
