@@ -1,3 +1,8 @@
+
+
+
+
+
 module TypeChecker ( typecheck ) where
 
 import AbsCPP
@@ -36,7 +41,7 @@ type Env = (Sig, [Context])
 
 
 lookupFun :: Env -> Id -> Err FunctionType
-lookupFun (sig,_) id = case M.lookup id sig of      -- What does this mean!
+lookupFun (sig,_) id = case M.lookup id sig of   
     Just ty -> return ty
     Nothing -> fail $ "TYPE ERROR\n\n" ++ printTree id ++ " was not declared."
 
@@ -125,6 +130,7 @@ checkStm env (SExp e) ty = do
     return env
 checkStm env (SDecls ty' ids) ty =
     foldM (\e i -> insertVar e i ty') env ids
+
 checkStm env (SReturn e) ty = do
     checkExp env e ty
     return env
@@ -135,20 +141,29 @@ checkStm env (SInit ty' i e) ty = do
     checkExp env' e ty'
     return env'
 
--- checkStm env SReturnVoid Type_void =
+checkStm env SReturnVoid Type_void = return env
+
 -- the next case is only executed in case ty is not Type_void
--- checkStm env SReturnVoid ty = do
-    -- return a typeMismatchError
+checkStm env SReturnVoid ty = fail $ typeMismatchError SReturnVoid Type_void ty
 
--- checkStm env (SWhile e stm) ty = do
+checkStm env (SWhile e stm) ty = do
     -- use newBlock
+    checkExp env e Type_bool
+    foldM(\e stm -> checkStm e stm ty) (newBlock env) [stm]
+    return env
 
--- checkStm env (SBlock stms) ty = do
+checkStm env (SBlock stms) ty = do
     -- use newBlock
     -- use foldM_ to fold checkStm over all stms
+    foldM (\e stm -> checkStm e stm ty) (newBlock env) stms
+    return env
 
--- checkStm env (SIfElse e stm1 stm2) ty = do
+checkStm env (SIfElse e stm1 stm2) ty = do
     -- use newBlock in both branches
+    checkExp env e Type_bool
+    foldM(\e stm -> checkStm e stm ty) (newBlock env) [stm1]
+    foldM(\e stm -> checkStm e stm ty) (newBlock env) [stm2]
+    return env
 
 {-   
 Once you have all cases you can delete the next line which is only needed to catch all cases that are not yet implemented.
@@ -166,28 +181,51 @@ In ty <- inferTypExp env e we have
 inferTypeExp :: Env -> Exp -> Err Type
 inferTypeExp env (EInt _) = return Type_int
 inferTypeExp env (EDouble _) = return Type_double
--- inferTypeExp env (EString _) = 
+inferTypeExp env (EString _) = return Type_string
+inferTypeExp env (ETrue) = return Type_bool
+inferTypeExp env (EFalse) = return Type_bool
 inferTypeExp env (EId i) = lookupVar i env
--- inferTypeExp env (EApp i exps) = do
-    -- use lookupFun
-    -- use forM_ to iterate checkExp over exps
--- inferTypeExp env (EPIncr e) = 
-    -- use inferTypeOverloadedExp 
--- inferTypeExp env (EPDecr e) = 
--- inferTypeExp env (EIncr e) = 
--- inferTypeExp env (EDecr e) = 
--- inferTypeExp env (ETimes e1 e2) = 
--- inferTypeExp env (EDiv e1 e2) = 
-inferTypeExp env (EPlus e1 e2) = inferTypeOverloadedExp env (Alternative [Type_int]) e1 [e2]
--- inferTypeExp env (EMinus e1 e2) = 
--- inferTypeExp env (ELt e1 e2) = do
--- inferTypeExp env (EGt e1 e2) = 
--- inferTypeExp env (ELtEq e1 e2) = 
--- inferTypeExp env (EGtEq e1 e2) = 
--- inferTypeExp env (EEq e1 e2) = do
--- inferTypeExp env (ENEq e1 e2) = 
--- inferTypeExp env (EAnd e1 e2) = do
--- inferTypeExp env (EOr e1 e2) = 
+inferTypeExp env (EApp i exps) = do
+    funType <- lookupFun env i
+    if (length (fst funType) /= (length exps)) then fail "Incorrect number of arguments"
+    else do forM_ (zip exps (fst funType)) (\p -> checkExp env (fst p) (snd p))
+    return (snd funType) 
+inferTypeExp env (EPIncr e) = inferTypeOverloadedExp env (Alternative [Type_int, Type_double]) e []
+inferTypeExp env (EPDecr e) = inferTypeOverloadedExp env (Alternative [Type_int, Type_double]) e []
+inferTypeExp env (EIncr e) = inferTypeOverloadedExp env (Alternative [Type_int, Type_double]) e []
+inferTypeExp env (EDecr e) = inferTypeOverloadedExp env (Alternative [Type_int, Type_double]) e []
+inferTypeExp env (ETimes e1 e2) = inferTypeOverloadedExp env (Alternative [Type_int, Type_double]) e1 [e2]
+inferTypeExp env (EDiv e1 e2) = inferTypeOverloadedExp env (Alternative [Type_int, Type_double]) e1 [e2]
+inferTypeExp env (EPlus e1 e2) = inferTypeOverloadedExp env (Alternative [Type_int, Type_double]) e1 [e2]
+inferTypeExp env (EMinus e1 e2) = inferTypeOverloadedExp env (Alternative [Type_int, Type_double]) e1 [e2]
+inferTypeExp env (ELt e1 e2) = do
+    inferTypeOverloadedExp env (Alternative [Type_int, Type_double]) e1 [e2]
+    return Type_bool
+inferTypeExp env (EGt e1 e2) = do
+    inferTypeOverloadedExp env (Alternative [Type_int, Type_double]) e1 [e2]
+    return Type_bool
+inferTypeExp env (ELtEq e1 e2) = do -- this is wrong cuz it thinks (bool <= bool) is ok
+    ty <- inferTypeExp env e1
+    checkExp env e2 ty
+    return Type_bool
+inferTypeExp env (EGtEq e1 e2) = do
+    inferTypeOverloadedExp env (Alternative [Type_int, Type_double]) e1 [e2]
+    return Type_bool
+inferTypeExp env (EEq e1 e2) = do
+    inferTypeOverloadedExp env (Alternative [Type_int, Type_double, Type_bool]) e1 [e2]
+    return Type_bool
+inferTypeExp env (ENEq e1 e2) = do
+    ty <- inferTypeExp env e1
+    checkExp env e2 ty
+    return Type_bool
+inferTypeExp env (EAnd e1 e2) = do
+    ty <- inferTypeExp env e1
+    checkExp env e2 Type_bool
+    return Type_bool
+inferTypeExp env (EOr e1 e2) = do
+    checkExp env e1 Type_bool
+    checkExp env e2 Type_bool
+    return Type_bool
 
 inferTypeExp env (EAss e1 e2) = do
     ty <- inferTypeExp env e1
@@ -212,11 +250,7 @@ inferTypeOverloadedExp env (Alternative ts) e es = do
         fail $ typeMismatchError e (Alternative ts) ty
     forM_ es (flip (checkExp env) ty)
     return ty
-    
---inferTypeOverLoadedExp :: Env -> Exp -> Exp -> Err Type
---inferTypeOverLoadedExp env a b = do
- --   typ <- inferExp env a 
-     
+
 
 
 checkExp :: Env -> Exp -> Type -> Err ()
@@ -224,3 +258,4 @@ checkExp env e ty = do
     ty' <- inferTypeExp env e
     unless (ty == ty') $ 
         fail $ typeMismatchError e ty ty'
+
