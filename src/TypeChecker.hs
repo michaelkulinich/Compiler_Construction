@@ -173,6 +173,8 @@ inferTypeExp :: Env -> Exp -> Err Type
 inferTypeExp env (EInt _) = return Type_int
 inferTypeExp env (EDouble _) = return Type_double
 inferTypeExp env (EString _) = return Type_string
+inferTypeExp env (ETrue) = return Type_bool
+inferTypeExp env (EFalse) = return Type_bool
 inferTypeExp env (EId i) = do
     ty <- lookupVar i env
     return ty
@@ -181,22 +183,42 @@ inferTypeExp env (EApp i exps) = do
     if(length (fst ty) /= (length exps)) then fail "wrong number"
     else do forM_ (zip exps (fst ty)) (\p -> checkExp env (fst p) (snd p))
     return (snd ty)
-inferTypeExp env (EPIncr e) = inferTypeOverloadedExp env (Alternative[Type_int]) e [e]
-inferTypeExp env (EPDecr e) = inferTypeOverloadedExp env (Alternative[Type_int]) e [e]
-inferTypeExp env (EIncr e) = inferTypeOverloadedExp env (Alternative[Type_int]) e [e]
-inferTypeExp env (EDecr e) = inferTypeOverloadedExp env (Alternative[Type_int]) e [e]
+inferTypeExp env (EPIncr e) = inferTypeOverloadedExp env (Alternative[Type_int, Type_double]) e [e]
+inferTypeExp env (EPDecr e) = inferTypeOverloadedExp env (Alternative[Type_int, Type_double]) e [e]
+inferTypeExp env (EIncr e) = inferTypeOverloadedExp env (Alternative[Type_int, Type_double]) e [e]
+inferTypeExp env (EDecr e) = inferTypeOverloadedExp env (Alternative[Type_int, Type_double]) e [e]
 inferTypeExp env (ETimes e1 e2) = inferTypeOverloadedExp env (Alternative [Type_int, Type_double]) e1 [e2]
 inferTypeExp env (EDiv e1 e2) = inferTypeOverloadedExp env (Alternative [Type_int, Type_double]) e1 [e2]
 inferTypeExp env (EPlus e1 e2) = inferTypeOverloadedExp env (Alternative [Type_int, Type_double]) e1 [e2]
 inferTypeExp env (EMinus e1 e2) = inferTypeOverloadedExp env (Alternative [Type_int, Type_double]) e1 [e2]
--- inferTypeExp env (ELt e1 e2) = do
--- inferTypeExp env (EGt e1 e2) =
--- inferTypeExp env (ELtEq e1 e2) =
--- inferTypeExp env (EGtEq e1 e2) =
--- inferTypeExp env (EEq e1 e2) = do
--- inferTypeExp env (ENEq e1 e2) =
--- inferTypeExp env (EAnd e1 e2) = do
--- inferTypeExp env (EOr e1 e2) =
+inferTypeExp env (ELt e1 e2) = do
+    inferTypeOverloadedExp env (Alternative [Type_int, Type_double]) e1 [e2]
+    return Type_bool
+inferTypeExp env (EGt e1 e2) = do
+    inferTypeOverloadedExp env (Alternative [Type_int, Type_double]) e1 [e2]
+    return Type_bool
+inferTypeExp env (ELtEq e1 e2) = do
+    ty <- inferTypeExp env e1
+    checkExp env e2 ty
+    return Type_bool
+inferTypeExp env (EGtEq e1 e2) = do
+    inferTypeOverloadedExp env (Alternative [Type_int, Type_double]) e1 [e2]
+    return Type_bool
+inferTypeExp env (EEq e1 e2) = do
+    inferTypeOverloadedExp env (Alternative [Type_int, Type_double, Type_bool]) e1 [e2]
+    return Type_bool
+inferTypeExp env (ENEq e1 e2) = do
+    ty <- inferTypeExp env e1
+    checkExp env e2 ty
+    return Type_bool
+inferTypeExp env (EAnd e1 e2) = do
+    ty <- inferTypeExp env e1
+    checkExp env e2 Type_bool
+    return Type_bool
+inferTypeExp env (EOr e1 e2) = do
+    checkExp env e1 Type_bool
+    checkExp env e2 Type_bool
+    return Type_bool
 
 inferTypeExp env (EAss e1 e2) = do
     ty <- inferTypeExp env e1
