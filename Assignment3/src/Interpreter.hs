@@ -170,33 +170,49 @@ evalStm (SExp e) = do
 evalStm (SDecls _ ids) = do
     mapM (\i -> extendContext i VUndefined) ids
     return Nothing
-{-
-evalStm (SInit _ i e) = 
-evalStm SReturnVoid = 
--}
+
+evalStm (SInit _ i e) = do
+    val <- evalExp e 
+    extendContext i val 
+    return Nothing
+evalStm SReturnVoid = return $ Just VVoid
+
 evalStm (SReturn e) = do
     v <- evalExp e
     return $ Just v
 
 evalStm (SBlock stms) = pushPop $ evalStms stms
-{-
-evalStm (SWhile e stm) = 
-evalStm (SIfElse e stm1 stm2) = 
--}
+
+evalStm (SWhile e stm) = do
+    val <- evalExp e
+    if val == VTrue then do
+        val' <- pushPop $ evalStm stm
+        if val' == Nothing then do
+            evalStm (SWhile e stm)
+        else 
+            return val'
+    else   
+        return Nothing
+  
+evalStm (SIfElse e stm1 stm2) = do
+    val <- evalExp e 
+    if val == VTrue then
+        pushPop $ evalStm stm1
+    else 
+        pushPop $ evalStm stm2
+
 evalStm stm = 
     fail $ "Missing case in evalStm " ++ printTree stm ++ "\n"
 
 evalExp :: Interpreter i => Exp -> i Value
 evalExp ETrue = return VTrue
-{-
-evalExp EFalse = 
--}
+evalExp EFalse = return VFalse
 evalExp (EInt i) = return $ VInt i
-{-
-evalExp (EDouble d) = 
-evalExp (EString _) = 
-evalExp (EId i) = 
--}
+evalExp (EDouble d) = return $ VDouble d
+--evalExp (EString _) = return $
+evalExp (EId i) = do -- or return $ lookupContext i
+    val <- lookupContext i
+    return val
 evalExp (EApp i exps) = do
     vals <- mapM evalExp exps
     case (i, vals) of
@@ -234,30 +250,52 @@ evalExp (EPIncr e@(EId i)) = do
     updateContext i val'
     return val
 evalExp (EPIncr e) = fail $ "Expected " ++ printTree e ++ " to be an id."
-{-
-evalExp (EPDecr e@(EId i)) = 
-evalExp (EPDecr e) = 
-evalExp (EIncr e@(EId i)) = 
-evalExp (EIncr e) = 
-evalExp (EDecr e@(EId i)) = 
-evalExp (EDecr e) = 
--}
+evalExp (EPDecr e@(EId i)) = do
+    val <- evalExp e
+    val' <- subValue val (VInt 1)
+    updateContext i val'
+    return val
+evalExp (EPDecr e) = fail $ "Expected " ++ printTree e ++ " to be an id."
+evalExp (EIncr e@(EId i)) = do
+    val <- evalExp e
+    val' <- addValue val (VInt 1)
+    updateContext i val'
+    return val'
+evalExp (EIncr e) = fail $ "Expected " ++ printTree e ++ " to be an id."
+evalExp (EDecr e@(EId i)) = do
+    val <- evalExp e
+    val' <- subValue val (VInt 1)
+    updateContext i val'
+    return val'
+evalExp (EDecr e) = fail $ "Expected " ++ printTree e ++ " to be an id."
 evalExp (ETimes e1 e2) = applyFun mulValue e1 e2
-
---evalExp (EDiv e1 e2)   = 
+evalExp (EDiv e1 e2)   = applyFun divValue e1 e2
 evalExp (EPlus e1 e2)  = applyFun addValue e1 e2
+evalExp (EMinus e1 e2) = applyFun subValue e1 e2
+evalExp (ELt e1 e2)    = applyFun ltValue e1 e2
+evalExp (EGt e1 e2)    = applyFun gtValue e1 e2
+evalExp (ELtEq e1 e2)  = applyFun ltEqValue e1 e2
+evalExp (EGtEq e1 e2)  = applyFun gtEqValue e1 e2
+evalExp (EEq e1 e2)    = applyFun eqValue e1 e2
+evalExp (ENEq e1 e2) = applyFun neqValue e1 e2
+evalExp (EAnd e1 e2) = do
+    val <- evalExp e1
+    if val == VFalse then
+        return $ VFalse
+    else
+        applyFun andValue e1 e2
+evalExp (EOr e1 e2) = do
+    val <- evalExp e1
+    if val == VTrue then
+        return $ VTrue
+    else
+        applyFun orValue e1 e2
+evalExp (EAss (EId i) e) = do
+    val <- evalExp e
+    updateContext i val
+    return val
+evalExp (EAss _ _) = fail $ "Internal error, trying to init incompatible types."
 {-
-evalExp (EMinus e1 e2) = 
-evalExp (ELt e1 e2)    = 
-evalExp (EGt e1 e2)    = 
-evalExp (ELtEq e1 e2)  = 
-evalExp (EGtEq e1 e2)  = 
-evalExp (EEq e1 e2)    =
-evalExp (ENEq e1 e2) =
-evalExp (EAnd e1 e2) = 
-evalExp (EOr e1 e2) = 
-evalExp (EAss (EId i) e) = 
-evalExp (EAss _ _) = 
 evalExp (ETyped e _) = 
 -}
 evalExp e = fail $ "Missing case in evalExp." ++ printTree e ++ "\n"
@@ -322,6 +360,60 @@ gtValue (VDouble u) (VDouble v) | u > v     = return $ VTrue
 gtValue (VDouble u) (VInt    v) = gtValue (VDouble u) (VDouble $ fromInteger v)
 gtValue (VInt    u) (VDouble v) = gtValue (VDouble $ fromInteger u) (VDouble v)
 gtValue _ _ = fail $ "Internal error, trying to apply gtValue to incompatible types."
+
+
+ltEqValue :: Interpreter i => Value -> Value -> i Value
+ltEqValue (VInt    u) (VInt    v) | u <= v     = return $ VTrue
+                                | otherwise = return $ VFalse
+ltEqValue (VDouble u) (VDouble v) | u <= v     = return $ VTrue
+                                | otherwise = return $ VFalse
+ltEqValue (VDouble u) (VInt    v) = ltEqValue (VDouble u) (VDouble $ fromInteger v)
+ltEqValue (VInt    u) (VDouble v) = ltEqValue (VDouble $ fromInteger u) (VDouble v)
+ltEqValue _ _ = fail $ "Internal error, trying to apply ltEqValue to incompatible types."
+
+
+gtEqValue :: Interpreter i => Value -> Value -> i Value
+gtEqValue (VInt    u) (VInt    v) | u >= v     = return $ VTrue
+                                | otherwise = return $ VFalse
+gtEqValue (VDouble u) (VDouble v) | u >= v     = return $ VTrue
+                                | otherwise = return $ VFalse
+gtEqValue (VDouble u) (VInt    v) = gtEqValue (VDouble u) (VDouble $ fromInteger v)
+gtEqValue (VInt    u) (VDouble v) = gtEqValue (VDouble $ fromInteger u) (VDouble v)
+gtEqValue _ _ = fail $ "Internal error, trying to apply gtEqValue to incompatible types."
+
+
+eqValue :: Interpreter i => Value -> Value -> i Value
+eqValue (VInt    u) (VInt    v) | u == v     = return $ VTrue
+                                | otherwise = return $ VFalse
+eqValue (VDouble u) (VDouble v) | u == v     = return $ VTrue
+                                | otherwise = return $ VFalse
+eqValue (VDouble u) (VInt    v) = eqValue (VDouble u) (VDouble $ fromInteger v)
+eqValue (VInt    u) (VDouble v) = eqValue (VDouble $ fromInteger u) (VDouble v)
+eqValue _ _ = fail $ "Internal error, trying to apply eqValue to incompatible types."
+
+
+neqValue :: Interpreter i => Value -> Value -> i Value
+neqValue (VInt    u) (VInt    v) | u /= v     = return $ VTrue
+                                | otherwise = return $ VFalse
+neqValue (VDouble u) (VDouble v) | u /= v     = return $ VTrue
+                                | otherwise = return $ VFalse
+neqValue (VDouble u) (VInt    v) = neqValue (VDouble u) (VDouble $ fromInteger v)
+neqValue (VInt    u) (VDouble v) = neqValue (VDouble $ fromInteger u) (VDouble v)
+neqValue _ _ = fail $ "Internal error, trying to apply neqValue to incompatible types."
+
+andValue :: Interpreter i => Value -> Value -> i Value
+andValue (VTrue)  (VTrue)  = return $ VTrue
+andValue (VTrue)  (VFalse) = return $ VFalse
+--andValue (VFalse) _  = return $ VFalse
+--andValue (VFalse) _ = return $ VFalse
+andValue _ _ = fail $ "Internal error, trying to apply andValue to incompatible types."
+
+orValue :: Interpreter i => Value -> Value -> i Value
+--orValue (VTrue) _  = return $ VFalse
+orValue (VFalse)  (VTrue)  = return $ VTrue
+orValue (VFalse)  (VFalse) = return $ VFalse
+
+orValue _ _ = fail $ "Internal error, trying to apply orValue to incompatible types."
 
 
 negValue :: Interpreter i => Value -> i Value
