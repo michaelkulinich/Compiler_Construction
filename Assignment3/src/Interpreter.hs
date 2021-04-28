@@ -209,7 +209,7 @@ evalExp ETrue = return VTrue
 evalExp EFalse = return VFalse
 evalExp (EInt i) = return $ VInt i
 evalExp (EDouble d) = return $ VDouble d
---evalExp (EString _) = return $
+evalExp (EString _) = return $ VUndefined
 evalExp (EId i) = do -- or return $ lookupContext i
     val <- lookupContext i
     return val
@@ -279,25 +279,28 @@ evalExp (EGtEq e1 e2)  = applyFun gtEqValue e1 e2
 evalExp (EEq e1 e2)    = applyFun eqValue e1 e2
 evalExp (ENEq e1 e2) = applyFun neqValue e1 e2
 evalExp (EAnd e1 e2) = do
-    val <- evalExp e1
-    if val == VFalse then
-        return $ VFalse
+    val  <- evalExp e1
+    if (val == VTrue) then do
+        val' <- evalExp e2
+        return val'
     else
-        applyFun andValue e1 e2
+        return VFalse
 evalExp (EOr e1 e2) = do
-    val <- evalExp e1
-    if val == VTrue then
-        return $ VTrue
-    else
-        applyFun orValue e1 e2
+    val  <- evalExp e1
+    if (val == VTrue) then
+        return VTrue
+    else do
+        val' <- evalExp e2
+        return val'
 evalExp (EAss (EId i) e) = do
     val <- evalExp e
     updateContext i val
     return val
 evalExp (EAss _ _) = fail $ "Internal error, trying to init incompatible types."
-{-
-evalExp (ETyped e _) = 
--}
+evalExp (ETyped e _) = do
+    val <- evalExp e 
+    return val
+
 evalExp e = fail $ "Missing case in evalExp." ++ printTree e ++ "\n"
 
 
@@ -400,20 +403,6 @@ neqValue (VDouble u) (VDouble v) | u /= v     = return $ VTrue
 neqValue (VDouble u) (VInt    v) = neqValue (VDouble u) (VDouble $ fromInteger v)
 neqValue (VInt    u) (VDouble v) = neqValue (VDouble $ fromInteger u) (VDouble v)
 neqValue _ _ = fail $ "Internal error, trying to apply neqValue to incompatible types."
-
-andValue :: Interpreter i => Value -> Value -> i Value
-andValue (VTrue)  (VTrue)  = return $ VTrue
-andValue (VTrue)  (VFalse) = return $ VFalse
---andValue (VFalse) _  = return $ VFalse
---andValue (VFalse) _ = return $ VFalse
-andValue _ _ = fail $ "Internal error, trying to apply andValue to incompatible types."
-
-orValue :: Interpreter i => Value -> Value -> i Value
---orValue (VTrue) _  = return $ VFalse
-orValue (VFalse)  (VTrue)  = return $ VTrue
-orValue (VFalse)  (VFalse) = return $ VFalse
-
-orValue _ _ = fail $ "Internal error, trying to apply orValue to incompatible types."
 
 
 negValue :: Interpreter i => Value -> i Value
