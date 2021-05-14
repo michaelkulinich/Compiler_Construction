@@ -377,25 +377,38 @@ compileExp n (EId i) = do
 -- compileExp n (EPDecr id@(EId i)) = do
 
 -- for the following use `compileArith`
-{-
-compileExp _ (ETimes e1 e2) =
-compileExp _ (EDiv e1 e2)   =
-compileExp _ (EPlus e1 e2)  =
-compileExp _ (EMinus e1 e2) =
-compileExp _ (ELt e1 e2)    =
-compileExp _ (EGt e1 e2)    =
-compileExp _ (ELtEq e1 e2)  =
-compileExp _ (EGtEq e1 e2)  =
-compileExp _ (EEq e1 e2)    =
-compileExp _ (ENEq e1 e2)   =
--}
+
+compileExp _ (ETimes e1 e2) = compileArith e1 e2 s_i32_mul s_f64_mul
+compileExp _ (EDiv e1 e2)   = compileArith e1 e2 s_i32_div_s s_f64_div
+compileExp _ (EPlus e1 e2)  = compileArith e1 e2 s_i32_add s_f64_add
+compileExp _ (EMinus e1 e2) = compileArith e1 e2 s_i32_sub s_f64_sub
+compileExp _ (ELt e1 e2)    = compileArith e1 e2 s_i32_lt_s s_f64_lt
+compileExp _ (EGt e1 e2)    = compileArith e1 e2 s_i32_gt_s s_f64_gt
+compileExp _ (ELtEq e1 e2)  = compileArith e1 e2 s_i32_le_s s_f64_le
+compileExp _ (EGtEq e1 e2)  = compileArith e1 e2 s_i32_ge_s s_f64_ge
+compileExp _ (EEq e1 e2)    = compileArith e1 e2 s_i32_eq s_f64_eq
+compileExp _ (ENEq e1 e2)   = compileArith e1 e2 s_i32_ne s_f64_ne
+
 
 -- for And and Or use if/then/else
--- compileExp _ (EAnd e1 e2) = do
--- compileExp _ (EOr e1 e2) = do
+compileExp _ (EAnd e1 e2) = do
+    s_e1 <- compileExp Nested e1
+    s_e2 <- compileExp Nested e2
+    let in = s_e2 ++ [s_if_then_else (compileType Type_int)[s_i32_const 1][s_i32_const 0]]
+    let out = s_e1 ++ [s_if_then_else(compileType Type_int) in [s_i32_const 0]]
+    return $ out
 
--- compileExp n (EAss (EId i) e) = do
-    -- use s_local_tee and s_local_set
+compileExp _ (EOr e1 e2) = do
+    s_e1 <- compileExp Nested e1
+    s_e2 <- compileExp Nested e2
+    let in = s_e2 ++ [s_if_then_else (compileType Type_int)[s_i32_const 1][s_i32_const 0]]
+    let out = s_e1 ++ [s_if_then_else(compileType Type_int) [s_i32_const 0] in]
+    return $ out
+
+compileExp n (EAss (EId i) e) = do
+    s_e1 <- compileExp nested e
+    v <- getVarName i
+    return $ if n == Nested then s_e1 ++ [s_local_tee v] else s_e1 ++ [s_local_set v]
 
 compileExp n (ETyped e _) = compileExp n e
 
