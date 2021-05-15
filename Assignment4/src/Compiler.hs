@@ -363,18 +363,34 @@ compileExp n (EId i) = do
     v <- getVarName i
     return $ if n == Nested then [s_local_get v] else []
 
--- compileExp n x@(EApp (Id i) args) = do
-    -- use `mapM` to iterate `compileExp Nested` over `args`
-    -- get the type of `EApp (Id i) args`
-    -- use `s_call`
-    -- if n==TopLevel and the type is not void use `s_drop`
+compileExp n x@(EApp (Id i) args) = do
+    s_args <- mapM (compileExp Nested) args
+    ty <- getType x
+    return $ concat s_args ++ [s_call i] ++ if n == TopLevel && ty /= Type_void then [s_drop] else []
 
--- compileExp n (EIncr id@(EId i)) = do
-    -- make a case distinction on whether the type of `EId i` is `Type_int` or `Type_double`
+compileExp n (EIncr id@(EId i)) = do
+    t <- getType id
+    v <- getVarName i
+    if t == Type_double then return [s_local_get v, s_f64_const 1, s_f64_add, s_local_tee v]
+    else return $ [s_local_get v, s_i32_const 1, s_i32_add, s_local_tee v]
 
--- compileExp n (EPIncr id@(EId i)) = do
--- compileExp n (EDecr id@(EId i)) = do
--- compileExp n (EPDecr id@(EId i)) = do
+compileExp n (EPIncr id@(EId i)) = do
+    t <- getType id
+    v <- getVarName i
+    if t == Type_double then return $ [s_local_get v] ++ [s_local_get v] ++ [s_f64_const 1] ++ [s_f64_add] ++ [s_local_set v] ++ if n == Nested then [] else [s_drop]
+    else return $ [s_local_get v] ++ [s_local_get v] ++ [s_i32_const 1] ++ [s_i32_add] ++ [s_local_set v] ++ if n == Nested then [] else [s_drop]
+
+compileExp n (EDecr id@(EId i)) = do
+    t <- getType id
+    v <- getVarName i
+    if t == Type_double then return $ [s_local_get v, s_f64_const 1, s_f64_sub, s_local_tee v]
+    else return $ [s_local_get v, s_i32_const 1, s_i32_sub, s_local_tee v]
+
+compileExp n (EPDecr id@(EId i)) = do
+    t <- getType id
+    v <- getVarName i
+    if t == Type_double then return $ [s_local_get v] ++ [s_local_get v] ++ [s_f64_const 1] ++ [s_f64_sub] ++ [s_local_set v] ++ if n == Nested then [] else [s_drop]
+    else return $ [s_local_get v] ++ [s_local_get v] ++ [s_i32_const 1] ++ [s_i32_sub] ++ [s_local_set v] ++ if n == Nested then [] else [s_drop]
 
 -- for the following use `compileArith`
 
