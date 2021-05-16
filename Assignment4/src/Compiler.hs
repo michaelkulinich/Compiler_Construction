@@ -267,7 +267,7 @@ compileStm (SInit ty i e) = do
         s_e++
         [s_local_set v]
 
-compileStm (SReturn e) =
+compileStm (SReturn e) = do
     s_e <- compileExp Nested e
     return $
         s_e++
@@ -276,17 +276,17 @@ compileStm (SReturn e) =
 
 compileStm SReturnVoid = return []
 
-compileStm (SWhile cond s) = do
+compileStm (SWhile c s) = do
     s' <- pushPop $ compileStm s
     s_cond <- compileExp Nested c
     return $
         [s_block $ [s_loop $ s_cond ++ [s_i32_eqz] ++ [s_br_if 1] ++ s' ++ [s_br 0]]]
 
 compileStm (SBlock stms) = do
-    s_stms <- pushPop $ mapM compileStm s_stms
+    s_stms <- pushPop $ mapM compileStm stms
     return $ concat s_stms
 
-compileStm s@(SIfElse cond s1 s2) = do
+compileStm s@(SIfElse c s1 s2) = do
     s_if <- pushPop $ compileStm s1
     s_else <- pushPop $ compileStm s2
     s_cond <- pushPop $ compileExp Nested c
@@ -410,19 +410,19 @@ compileExp _ (ENEq e1 e2)   = compileArith e1 e2 s_i32_ne s_f64_ne
 compileExp _ (EAnd e1 e2) = do
     s_e1 <- compileExp Nested e1
     s_e2 <- compileExp Nested e2
-    let in = s_e2 ++ [s_if_then_else (compileType Type_int)[s_i32_const 1][s_i32_const 0]]
-    let out = s_e1 ++ [s_if_then_else(compileType Type_int) in [s_i32_const 0]]
-    return $ out
+    let inner = s_e2 ++ [s_if_then_else (compileType Type_int)[s_i32_const 1][s_i32_const 0]]
+    let outer = s_e1 ++ [s_if_then_else(compileType Type_int) inner [s_i32_const 0]]
+    return $ outer
 
 compileExp _ (EOr e1 e2) = do
     s_e1 <- compileExp Nested e1
     s_e2 <- compileExp Nested e2
-    let in = s_e2 ++ [s_if_then_else (compileType Type_int)[s_i32_const 1][s_i32_const 0]]
-    let out = s_e1 ++ [s_if_then_else(compileType Type_int) [s_i32_const 0] in]
-    return $ out
+    let inner = s_e2 ++ [s_if_then_else (compileType Type_int)[s_i32_const 1][s_i32_const 0]]
+    let outer = s_e1 ++ [s_if_then_else(compileType Type_int) [s_i32_const 0] inner]
+    return $ outer
 
 compileExp n (EAss (EId i) e) = do
-    s_e1 <- compileExp nested e
+    s_e1 <- compileExp Nested e
     v <- getVarName i
     return $ if n == Nested then s_e1 ++ [s_local_tee v] else s_e1 ++ [s_local_set v]
 
