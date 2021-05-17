@@ -417,8 +417,8 @@ compileExp _ (EAnd e1 e2) = do
 compileExp _ (EOr e1 e2) = do
     s_e1 <- compileExp Nested e1
     s_e2 <- compileExp Nested e2
-    let inner = s_e2 ++ [s_if_then_else (compileType Type_int)[s_i32_const 1][s_i32_const 0]]
-    let outer = s_e1 ++ [s_if_then_else(compileType Type_int) [s_i32_const 0] inner]
+    let inner = s_e2 ++ [s_if_then_else (compileType Type_int) [s_i32_const 1][s_i32_const 0]]
+    let outer = s_e1 ++ [s_if_then_else (compileType Type_int) [s_i32_const 1] inner]
     return $ outer
 
 compileExp n (EAss (EId i) e) = do
